@@ -1,7 +1,7 @@
 # Maintainer: monomyth
 
 pkgname=vibecad-preview-bin
-pkgver=26.3.1rc6.build1
+pkgver=26.3.1rc6.build3
 pkgrel=1
 pkgdesc="AI-native parametric CAD platform (release candidate)"
 arch=('x86_64')
@@ -46,7 +46,7 @@ sha256sums=(
   '7ffe1954587c77dfba1cf8eb9b2ea743671fa6e63f9e7a2f258119d42e14eefe'
   '01cd7fb7718e80891594d9a437bb0f61402dbf47f092c2237a19571fc72fa171'
 )
-sha256sums_x86_64=('2141fef939b90a45fdb5831daafbbe7e146cf7837c498904c1d0d700b01a16ed')
+sha256sums_x86_64=('f1fef412efcff9dca21a3d20757976cc5d2f0e936066a11e3463e171d4ad63bc')
 
 package() {
   install -Dm755 "${srcdir}/${_appimage}" \

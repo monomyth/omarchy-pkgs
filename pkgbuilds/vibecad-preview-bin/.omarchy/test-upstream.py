@@ -25,12 +25,12 @@ def release(tag, preview, *, draft=False, recent=False):
 
 
 class Tracks(unittest.TestCase):
-    def run_hook(self, package, releases, *, age=0, invalid_hash=False):
+    def run_hook(self, package, releases, *, age=0, invalid_hash=False, current='0'):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for filename in ('vibecad', 'vibecad.desktop', 'update-policy.json'):
                 shutil.copy2(PACKAGE / filename, root / filename)
-            (root / 'PKGBUILD').write_text(f'pkgname={package}\npkgver=0\n')
+            (root / 'PKGBUILD').write_text(f'pkgname={package}\npkgver={current}\n')
             stub = root / 'bin'
             stub.mkdir()
             curl = stub / 'curl'
@@ -72,6 +72,19 @@ esac
 
     def test_no_stable_does_not_promote_rc(self):
         self.assertIsNone(self.version('vibecad-bin', [release('v26.3.1-RC6-build1', True)]))
+
+    def test_build3_upgrades_build1(self):
+        rows = [release('v26.3.1-RC6-build1', True), release('v26.3.1-RC6-build3', True)]
+        self.assertEqual(self.version('vibecad-preview-bin', rows, current='26.3.1rc6.build1'),
+                         '26.3.1rc6.build3')
+
+    def test_current_build_is_unchanged(self):
+        rows = [release('v26.3.1-RC6-build3', True), release('v26.3.1-RC6-build1', True)]
+        self.assertIsNone(self.version('vibecad-preview-bin', rows, current='26.3.1rc6.build3'))
+
+    def test_build_numbers_use_pacman_order(self):
+        rows = [release('v26.3.1-RC6-build10', True), release('v26.3.1-RC6-build3', True)]
+        self.assertEqual(self.version('vibecad-preview-bin', rows), '26.3.1rc6.build10')
 
     def test_quarantine_selects_older_eligible_rc(self):
         rows = [release('v26.3.1-RC7-build1', True, recent=True), release('v26.3.1-RC6-build1', True)]

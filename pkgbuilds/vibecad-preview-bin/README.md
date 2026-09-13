@@ -1,6 +1,6 @@
 # VibeCAD Preview on Omarchy
 
-`vibecad-preview-bin` tracks published RC releases marked prerelease on GitHub. `vibecad-bin` is reserved for stable releases (not marked prerelease and with no prerelease suffix). As of 2026-09-04 upstream has published only RCs, so no stable binary package is included. Do not reclassify an RC as stable.
+`vibecad-preview-bin` tracks published RC releases marked prerelease on GitHub. The current packaged release is **26.3.1-RC6 Build 3** (`26.3.1rc6.build3-1`). `vibecad-bin` is reserved for stable releases (not marked prerelease and with no prerelease suffix). No stable binary package is included yet. Do not reclassify an RC as stable.
 
 An inactive stable recipe is kept in `../vibecad-bin/PKGBUILD.in`. When upstream publishes a stable release, activate that stub with its real version and verified checksums. Keep the launcher and update hook identical. The hook selects stable or preview based on `pkgname`. Both variants provide and conflict with `vibecad`, so switching variants replaces the installed package and retains user documents and preferences. Neither variant is installed as a dependency of the other.
 
