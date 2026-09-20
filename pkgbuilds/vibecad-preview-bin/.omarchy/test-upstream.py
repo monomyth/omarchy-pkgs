@@ -10,6 +10,8 @@ import tempfile
 import unittest
 
 PACKAGE = Path(__file__).resolve().parents[1]
+REPOSITORY = PACKAGE.parents[1]
+STABLE_STUB = REPOSITORY / 'docs/package-stubs/vibecad-bin'
 
 
 def release(tag, preview, *, draft=False, recent=False):
@@ -25,6 +27,25 @@ def release(tag, preview, *, draft=False, recent=False):
 
 
 class Tracks(unittest.TestCase):
+    def test_preview_has_real_build_inputs(self):
+        self.assertTrue((PACKAGE / 'PKGBUILD').is_file())
+        metadata = json.loads((PACKAGE / '.omarchy/package.json').read_text())
+        self.assertEqual(metadata['source'], 'local')
+        self.assertEqual(metadata['release_ring'], 'fast')
+        self.assertFalse(metadata.get('skip_build', False))
+
+    def test_stable_stub_is_outside_package_discovery(self):
+        self.assertFalse((REPOSITORY / 'pkgbuilds/vibecad-bin').exists())
+        self.assertTrue((STABLE_STUB / 'PKGBUILD.in').is_file())
+        self.assertTrue((STABLE_STUB / '.omarchy/package.json.in').is_file())
+        self.assertFalse((STABLE_STUB / 'PKGBUILD').exists())
+
+    def test_stable_and_preview_keep_identical_runtime_fixes(self):
+        for filename in ('vibecad', 'update-policy.json', '.omarchy/upstream.sh'):
+            with self.subTest(filename=filename):
+                self.assertEqual((PACKAGE / filename).read_bytes(),
+                                 (STABLE_STUB / filename).read_bytes())
+
     def run_hook(self, package, releases, *, age=0, invalid_hash=False, current='0'):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
