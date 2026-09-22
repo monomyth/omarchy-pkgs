@@ -141,6 +141,24 @@ class PreflightTests(unittest.TestCase):
         self.bind(self.virtual, "apple-touchbar")
         self.check("checks-passed")
 
+    def test_shared_sensor_interface_is_allowed(self):
+        self.bind(self.physical, "apple-ibridge-hid")
+        self.bind(self.virtual, "apple-touchbar")
+        sensor = self.usb / "1-3:1.3/0003:05AC:8600.0003"
+        sensor.mkdir(parents=True)
+        (self.root / "bus/hid/devices" / sensor.name).symlink_to(sensor)
+        self.bind(sensor, "hid-sensor-hub")
+        report = self.check("checks-passed")
+        self.assertIn("hid-sensor-hub", [node["owner"] for node in report["hid"]])
+
+    def test_fully_loaded_expected_stack_is_allowed(self):
+        self.bind(self.physical, "apple-ibridge-hid")
+        self.bind(self.virtual, "apple-touchbar")
+        self.put("module/apple_ibridge/parameters/skip_acpi_power", "1")
+        (self.root / "module/apple_touchbar").mkdir()
+        report = self.check("checks-passed")
+        self.assertEqual(report["loaded_modules"], ["apple_ibridge", "apple_touchbar"])
+
     def test_unrelated_hid_is_not_a_descendant(self):
         unrelated = self.root / "devices/other/0003:1D6B:0301.0009"
         unrelated.mkdir(parents=True)
